@@ -9,12 +9,12 @@ type MongoCustomerUserRepository struct {
 	session *mgo.Session
 }
 
-func (repo MongoCustomerUserRepository) getByApiKey(apiKey string) models.Customer {
+func (repo MongoCustomerUserRepository) getByApiKey(apiKey string) models.CustomerUser {
 	// FIXME not implemented
 	return nil
 }
 
-func (repo MongoCustomerUserRepository) getByEmail(apiKey email) models.Customer {
+func (repo MongoCustomerUserRepository) getByEmail(email string) models.CustomerUser {
 	// FIXME not implemented
 	return nil
 }
