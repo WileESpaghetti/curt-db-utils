@@ -5,16 +5,16 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-type MongoCustomerRepository struct {
+type MongoCustomerUserRepository struct {
 	session *mgo.Session
 }
 
-func (repo MongoCustomerRepository) getByApiKey(apiKey string) models.Customer {
+func (repo MongoCustomerUserRepository) getByApiKey(apiKey string) models.Customer {
 	// FIXME not implemented
 	return nil
 }
 
-func (repo MongoCustomerRepository) getByEmail(apiKey email) models.Customer {
+func (repo MongoCustomerUserRepository) getByEmail(apiKey email) models.Customer {
 	// FIXME not implemented
 	return nil
 }

@@ -2,7 +2,7 @@ package repositories
 
 import "github.com/WileESpaghetti/curt-db-utils/models"
 
-type CustomerRepository interface {
+type CustomerUserRepository interface {
 	getByApiKey(apiKey string) models.Customer
 	getByEmail(email string) models.Customer
 }
