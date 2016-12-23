@@ -20,3 +20,13 @@ func NewMysqlConnectionStringFromEnvironment(databaseVarName string, userVarName
 
 	return fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=%s&loc=%s", user, pass, proto, host, db, parse, time)
 }
+
+// Creates a string formatted in a way that the (go-sql-driver)[https://github.com/go-sql-driver/mysql] can connect to a MySQL instance
+func NewMysqlConnectionStringFromValues(database string, user string, password string, host string, protocol string) string {
+	// QUESTION does any of this need to be URL encoded?
+	// TODO move into some sort of defaults struct
+	time  := "America%2FChicago"
+	parse := "true"
+
+	return fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=%s&loc=%s", user, password, protocol, host, database, parse, time)
+}

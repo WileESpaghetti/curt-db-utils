@@ -44,3 +44,22 @@ func TestNewMysqlConnectionStringFromEnvironment(t *testing.T) {
 	os.Unsetenv(dbKey)
 	os.Unsetenv(protoKey)
 }
+
+func TestNewMysqlConnectionStringFromValues(t *testing.T) {
+	var expectedConnectionString string
+	var actualConnectionString string
+
+	hostVal  := "test_hostname"
+	userVal  := "test_username"
+	passVal  := "test_password"
+	dbVal    := "test_database"
+	protoVal := "tcp"
+
+	expectedConnectionString =fmt.Sprintf("%s:%s@%s(%s)/%s?parseTime=%s&loc=%s", userVal, passVal, protoVal, hostVal, dbVal, "true", "America%2FChicago")
+	actualConnectionString = NewMysqlConnectionStringFromValues(dbVal, userVal, passVal, hostVal, protoVal)
+
+	if (expectedConnectionString != actualConnectionString) {
+		t.Error(fmt.Sprintf("Expected Connection String to be\nexpected: %s\nactual:   %s", expectedConnectionString, actualConnectionString))
+	}
+}
+
