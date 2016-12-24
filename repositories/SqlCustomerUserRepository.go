@@ -9,9 +9,9 @@ type SqlCustomerRepository struct {
 	session *sql.DB
 }
 
-func (repo SqlCustomerRepository) getByApiKey(apiKey string) models.CustomerUser {
+func (repo SqlCustomerRepository) getByApiKey(apiKey string) (c models.CustomerUser, err error) {
 	// FIXME not implemented
-	return nil
+	return models.CustomerUser{}, nil
 }
 
 func (repo SqlCustomerRepository) getByEmail(email string) (c models.CustomerUser, err error) {
