@@ -6,7 +6,7 @@ import (
 )
 
 type MongoCustomerUserRepository struct {
-	session *mgo.Session
+	Session *mgo.Session
 }
 
 func (repo MongoCustomerUserRepository) GetByApiKey(apiKey string) (c models.CustomerUser, err error) {

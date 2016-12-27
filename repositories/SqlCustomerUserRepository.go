@@ -6,7 +6,7 @@ import (
 )
 
 type SqlCustomerRepository struct {
-	session *sql.DB
+	Session *sql.DB
 }
 
 func (repo SqlCustomerRepository) GetByApiKey(apiKey string) (c models.CustomerUser, err error) {
@@ -20,7 +20,7 @@ func (repo SqlCustomerRepository) GetByEmail(email string) (c models.CustomerUse
 				where UPPER(customer.email) = UPPER(?)
 				`
 
-	stmt, err := repo.session.Prepare(customerUserFromEmail)
+	stmt, err := repo.Session.Prepare(customerUserFromEmail)
 	if err != nil {
 		return c, err
 	}
