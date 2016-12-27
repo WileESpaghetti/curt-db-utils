@@ -45,7 +45,7 @@ func TestGetByEmail(t *testing.T) {
 	}
 
 	repo := SqlCustomerRepository{session: session}
-	customerUser, err := repo.getByEmail("example@example.com")
+	customerUser, err := repo.GetByEmail("example@example.com")
 	if ("1" != customerUser.Id) {
 		t.Error("Expected CustomerUser.Id to be\n expected: %s\nactual:  %s", "1", customerUser.Id)
 	}

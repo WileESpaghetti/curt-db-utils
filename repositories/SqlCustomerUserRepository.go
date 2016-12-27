@@ -9,12 +9,12 @@ type SqlCustomerRepository struct {
 	session *sql.DB
 }
 
-func (repo SqlCustomerRepository) getByApiKey(apiKey string) (c models.CustomerUser, err error) {
+func (repo SqlCustomerRepository) GetByApiKey(apiKey string) (c models.CustomerUser, err error) {
 	// FIXME not implemented
 	return models.CustomerUser{}, nil
 }
 
-func (repo SqlCustomerRepository) getByEmail(email string) (c models.CustomerUser, err error) {
+func (repo SqlCustomerRepository) GetByEmail(email string) (c models.CustomerUser, err error) {
 	customerUserFromEmail := `select customer.id, customer.email
 				from CustomerUser as customer
 				where UPPER(customer.email) = UPPER(?)
