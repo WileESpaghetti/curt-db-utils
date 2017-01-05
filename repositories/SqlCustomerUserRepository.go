@@ -26,7 +26,7 @@ func (repo SqlCustomerRepository) GetByEmail(email string) (c models.CustomerUse
 	}
 	defer stmt.Close()
 
-	customerUser := models.CustomerUser{"", ""}
+	customerUser := models.CustomerUser{}
 	result := stmt.QueryRow(email)
 	err = result.Scan(&customerUser.Id, &customerUser.Email)
 
