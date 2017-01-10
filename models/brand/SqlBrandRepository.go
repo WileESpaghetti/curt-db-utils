@@ -11,10 +11,11 @@ type SqlBrandRepository struct {
 }
 
 func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
+	var logo *string
+	var logoAlt *string
+
 	getBrandById := `select ID, name, code, logo, logoAlt, formalName, longName, primaryColor, autocareID
 			from Brand where ID = ? limit 1`
-	//var b Brand
-	//var err error
 
 	stmt, err := repo.Session.Prepare(getBrandById)
 	if err != nil {
@@ -22,9 +23,8 @@ func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
 	}
 	defer stmt.Close()
 
-	var logo, logoAlt, formal, long, primary, autocare *string
 	result := stmt.QueryRow(id)
-	err = result.Scan(&brand.ID, &brand.Name, &brand.Code, &logo, &logoAlt, &formal, &long, &primary, &autocare)
+	err = result.Scan(&brand.ID, &brand.Name, &brand.Code, &logo, &logoAlt, &brand.FormalName, &brand.LongName, &brand.PrimaryColor, &brand.AutocareID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			err = fmt.Errorf("%s", "brand doesn't exist")
@@ -38,22 +38,6 @@ func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
 
 	if logoAlt != nil {
 		brand.LogoAlternate, _ = url.Parse(*logoAlt)
-	}
-
-	if formal != nil {
-		brand.FormalName = *formal
-	}
-
-	if long != nil {
-		brand.LongName = *long
-	}
-
-	if primary != nil {
-		brand.PrimaryColor = *primary
-	}
-
-	if autocare != nil {
-		brand.AutocareID = *autocare
 	}
 
 	return brand, err
