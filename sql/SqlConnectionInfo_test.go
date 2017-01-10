@@ -63,3 +63,5 @@ func TestNewMysqlConnectionStringFromValues(t *testing.T) {
 	}
 }
 
+// TODO test case: so that I am able to connect to server
+
