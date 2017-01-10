@@ -42,3 +42,27 @@ func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
 
 	return brand, err
 }
+
+func (repo SqlBrandRepository) SaveNew(brand Brand) (err error) {
+	saveNewBrand := `insert into Brand(name, code, logo, logoAlt, formalName, longName, primaryColor, autocareID) values (?,?,?,?,?,?,?,?)`
+	stmt, err := repo.Session.Prepare(saveNewBrand)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	logo := brand.Logo.String()
+	logoAlt := brand.Logo.String()
+	_, err = stmt.Exec(&brand.Name, &brand.Code, &logo, &logoAlt, &brand.FormalName, &brand.LongName, &brand.PrimaryColor, &brand.AutocareID)
+	if err != nil {
+		return err
+	}
+
+	//id, err := result.LastInsertId()
+	//if err != nil {
+	//	return err
+	//}
+	//brand.ID = int(id)
+
+	return err
+}

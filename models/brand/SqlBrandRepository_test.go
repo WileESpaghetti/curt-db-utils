@@ -109,3 +109,75 @@ func TestGetById(t *testing.T) {
 		panic(err)
 	}
 }
+
+// AS A ???
+// I WANT to save it to the database
+// SO THAT I can retrieve it later
+func TestSaveNew(t *testing.T) {
+	var err error
+	testDb := "curt_db_utils_test"
+	brandTable := "Brand"
+	session, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/")
+	if err != nil {
+		fmt.Println(err)
+		t.Error("Could not connect to test database server")
+		return
+	}
+	defer session.Close()
+
+	_,err = session.Exec("DROP DATABASE IF EXISTS " + testDb)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_,err = session.Exec("CREATE DATABASE " + testDb)
+	if err != nil {
+		panic(err)
+	}
+
+	_,err = session.Exec("USE " + testDb)
+	if err != nil {
+		panic(err)
+	}
+
+	_,err = session.Exec("CREATE TABLE " + brandTable + "(`ID` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(255) NOT NULL, `code` varchar(255) NOT NULL, `logo` varchar(255) DEFAULT NULL, `logoAlt` varchar(255) DEFAULT NULL, `formalName` varchar(255) DEFAULT NULL, `longName` varchar(255) DEFAULT NULL, `primaryColor` varchar(10) DEFAULT NULL, `autocareID` varchar(4) DEFAULT NULL, PRIMARY KEY (`ID`))")
+	if err != nil {
+		panic(err)
+	}
+
+	testName := "TestBrandName"
+	testCode := "TestCode"
+	testLogo := "http://www.example.com/logo.png"
+	parsedLogo, err := url.Parse(testLogo)
+	testLogoAlt := "http://www.example.org/logo-alt.png"
+	parsedLogoAlt, err := url.Parse(testLogoAlt)
+	testFormalName := "TestFormalName"
+	testLongName := "Test Long Name"
+	testPrimaryColor := "red"
+	testAutoCareID := "test"
+
+	testBrand := Brand{
+		Name: testName,
+		Code: testCode,
+		Logo: parsedLogo,
+		LogoAlternate: parsedLogoAlt,
+		FormalName: testFormalName,
+		LongName: testLongName,
+		PrimaryColor: testPrimaryColor,
+		AutocareID: testAutoCareID }
+
+	repo := SqlBrandRepository{Session: session}
+	err = repo.SaveNew(testBrand)
+
+	if (err != nil) {
+		t.Error("Unexpected error saving new Brand")
+		t.Error(err)
+	}
+
+	// FIXME need some sort of behavior test here
+
+	_,err = session.Exec("DROP DATABASE " + testDb)
+	if err != nil {
+		panic(err)
+	}
+}
