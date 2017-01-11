@@ -111,10 +111,12 @@ func TestGetById(t *testing.T) {
 }
 
 // AS A ???
-// I WANT to save it to the database
+// I WANT to save a Brand to the database
 // SO THAT I can retrieve it later
 func TestSaveNew(t *testing.T) {
 	var err error
+	var originalCount, expectedCount, actualCount int
+
 	testDb := "curt_db_utils_test"
 	brandTable := "Brand"
 	session, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/")
@@ -166,15 +168,36 @@ func TestSaveNew(t *testing.T) {
 		PrimaryColor: testPrimaryColor,
 		AutocareID: testAutoCareID }
 
+
+	countSavedBrands := fmt.Sprintf("SELECT COUNT(*) from %s", brandTable)
+
+	originalBrandCount, err := session.Query(countSavedBrands)
+	if (err != nil) {
+		t.Error("Unexpected error retreiving the original Brand count")
+		t.Error(err)
+	}
+	originalBrandCount.Next()
+	originalBrandCount.Scan(&originalCount)
+	expectedCount = originalCount + 1
+	originalBrandCount.Close()
+
+	// test begins here
 	repo := SqlBrandRepository{Session: session}
 	err = repo.SaveNew(testBrand)
 
+	actualBrandCount, err := session.Query(countSavedBrands)
 	if (err != nil) {
-		t.Error("Unexpected error saving new Brand")
+		t.Error("Unexpected error retreiving the new Brand count")
 		t.Error(err)
 	}
+	actualBrandCount.Next()
+	actualBrandCount.Scan(&actualCount)
+	originalBrandCount.Close()
 
-	// FIXME need some sort of behavior test here
+	if expectedCount != actualCount {
+		t.Errorf("Expected Brand count did not match\n expected: %d\nactual:  %d", expectedCount, actualCount)
+	}
+
 
 	_,err = session.Exec("DROP DATABASE " + testDb)
 	if err != nil {
