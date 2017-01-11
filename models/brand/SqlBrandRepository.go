@@ -58,6 +58,7 @@ func (repo SqlBrandRepository) SaveNew(brand Brand) (err error) {
 		return err
 	}
 
+	// TODO decide if you want to return the new ID or add the ID to the original *Brand
 	//id, err := result.LastInsertId()
 	//if err != nil {
 	//	return err
