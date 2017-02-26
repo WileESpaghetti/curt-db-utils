@@ -14,8 +14,8 @@ func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
 	var logo *string
 	var logoAlt *string
 
-	getBrandById := `select ID, name, code, logo, logoAlt, formalName, longName, primaryColor, autocareID
-			from Brand where ID = ? limit 1`
+	getBrandById := `SELECT ID, name, code, logo, logoAlt, formalName, longName, primaryColor, autocareID
+			FROM Brand where ID = ? limit 1`
 
 	stmt, err := repo.Session.Prepare(getBrandById)
 	if err != nil {

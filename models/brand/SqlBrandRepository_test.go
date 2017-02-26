@@ -7,106 +7,47 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"net/url"
 	"reflect"
+	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
-func TestGetById(t *testing.T) {
-	// FIXME replace individual tests by creating Brand{} instance and deepEqual to resulting Brand
-	var err error
-	testDb := "curt_db_utils_test"
-	brandTable := "Brand"
-	session, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/")
+func TestSqlBrandRepository_GetByIdShouldReturnBrandWhenGivenValidId(t *testing.T) {
+	// Setup expected Result
+	expectedLogo := "http://www.example.com/logo.png"
+	expectedLogoAlternate := "http://www.example.com/logo_alt.png"
+	expectedLogoParsed, _ := url.Parse(expectedLogo)
+	expectedLogoAlternateParsed ,_ := url.Parse(expectedLogoAlternate)
+	expectedBrand := Brand {ID: 1,
+		Name: "ExampleName",
+		Code: "ExampleCode",
+		Logo: expectedLogoParsed,
+		LogoAlternate: expectedLogoAlternateParsed,
+		FormalName: "Example Formal Name",
+		LongName: "Example Long Name",
+		PrimaryColor: "#ffffff",
+		AutocareID: "EXAM"}
+
+	// Setup the database mock
+	session, mock, err := sqlmock.New()
 	if err != nil {
-		fmt.Println(err)
-		t.Error("Could not connect to test database server")
-		return
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 	defer session.Close()
 
-	_,err = session.Exec("DROP DATABASE IF EXISTS " + testDb)
-	if err != nil {
-		t.Error(err)
-	}
+	rows := sqlmock.NewRows([]string{"ID", "name", "code", "logo", "logoAlt", "formalName", "longName",
+		"primaryColor", "autocareID"})
+	rows.AddRow(expectedBrand.ID, expectedBrand.Name, expectedBrand.Code, expectedLogo, expectedLogoAlternate, expectedBrand.FormalName,
+		expectedBrand.LongName, expectedBrand.PrimaryColor, expectedBrand.AutocareID)
 
-	_,err = session.Exec("CREATE DATABASE " + testDb)
-	if err != nil {
-		panic(err)
-	}
+	mock.ExpectPrepare("SELECT (.+)").ExpectQuery().WillReturnRows(rows)
 
-	_,err = session.Exec("USE " + testDb)
-	if err != nil {
-		panic(err)
-	}
-
-	_,err = session.Exec("CREATE TABLE " + brandTable + "(`ID` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(255) NOT NULL, `code` varchar(255) NOT NULL, `logo` varchar(255) DEFAULT NULL, `logoAlt` varchar(255) DEFAULT NULL, `formalName` varchar(255) DEFAULT NULL, `longName` varchar(255) DEFAULT NULL, `primaryColor` varchar(10) DEFAULT NULL, `autocareID` varchar(4) DEFAULT NULL, PRIMARY KEY (`ID`))")
-	if err != nil {
-		panic(err)
-	}
-
-	testId := 1
-	testName := "TestBrandName"
-	testCode := "TestCode"
-	testLogo := "http://www.example.com/logo.png"
-	testLogoAlt := "http://www.example.org/logo-alt.png"
-	testFormalName := "TestFormalName"
-	testLongName := "Test Long Name"
-	testPrimaryColor := "red"
-	testAutoCareID := "test"
-
-	insertTestBrand := fmt.Sprintf("INSERT INTO %s (ID, name, code, logo, logoAlt, formalName, longName, primaryColor, autocareID) VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')",
-		brandTable,
-		testId,
-		testName,
-		testCode,
-		testLogo,
-		testLogoAlt,
-		testFormalName,
-		testLongName,
-		testPrimaryColor,
-		testAutoCareID)
-	_,err = session.Exec(insertTestBrand)
-	if err != nil {
-		panic(err)
-	}
-
+	// Test SqlBrandRepository.GetById
 	repo := SqlBrandRepository{Session: session}
-	brand, err := repo.GetById(testId)
-	if (testId != brand.ID) {
-		t.Errorf("Expected Brand.ID to be\n expected: %s\nactual:  %s", testId, brand.ID)
-	}
-
-	if (testName != brand.Name) {
-		t.Errorf("Expected Brand.Name to be\n expected: %s\nactual:  %s", testName, brand.Name)
-	}
-
-	if (testCode != brand.Code) {
-		t.Errorf("Expected Brand.Code to be\n expected: %s\nactual:  %s", testCode, brand.Code)
-	}
-
-	parsedLogo, _ := url.Parse(testLogo)
-	if (!reflect.DeepEqual(parsedLogo, brand.Logo)) {
-		t.Errorf("Expected Brand.Logo to be\n expected: %s\nactual:  %s", parsedLogo, brand.Logo)
-	}
-
-	parsedLogoAlt, _ := url.Parse(testLogoAlt)
-	if (!reflect.DeepEqual(parsedLogoAlt, brand.LogoAlternate)) {
-		t.Errorf("Expected Brand.Logo to be\n expected: %s\nactual:  %s", parsedLogo, brand.Logo)
-	}
-
-	if (testFormalName != brand.FormalName) {
-		t.Errorf("Expected Brand.FormalName to be\n expected: %s\nactual:  %s", testFormalName, brand.FormalName)
-	}
-
-	if (testPrimaryColor != brand.PrimaryColor) {
-		t.Errorf("Expected Brand.PrimaryColor to be\n expected: %s\nactual:  %s", testPrimaryColor, brand.PrimaryColor)
-	}
-
-	if (testAutoCareID != brand.AutocareID) {
-		t.Errorf("Expected Brand.AutoCareAutoCareID to be\n expected: %s\nactual:  %s", testAutoCareID, brand.AutocareID)
-	}
-
-	_,err = session.Exec("DROP DATABASE " + testDb)
+	brand, err := repo.GetById(expectedBrand.ID)
 	if err != nil {
-		panic(err)
+		t.Fatalf("an error '%s' was not expected when looking up Brand by ID", err)
+	}
+	if ! reflect.DeepEqual(brand, expectedBrand) {
+		t.Errorf("Actual Brand Does not match expected\n  Actual: %+v\nExpected: %+v", brand, expectedBrand)
 	}
 }
 
