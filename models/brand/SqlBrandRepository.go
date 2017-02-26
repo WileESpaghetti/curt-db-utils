@@ -67,3 +67,5 @@ func (repo SqlBrandRepository) SaveNew(brand Brand) (err error) {
 
 	return err
 }
+
+// TODO should not leak mysql connections

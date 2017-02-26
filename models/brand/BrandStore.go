@@ -1,5 +1,6 @@
 package brand
 
+// TODO Eventually it would be nice if this could implement from a Store interface
 type BrandStore struct {
 	Repository BrandRepository
 }
