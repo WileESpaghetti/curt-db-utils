@@ -1,13 +1,13 @@
 package brand
 
-import "net/url"
+import dbUtils "github.com/WileESpaghetti/curt-db-utils/helpers"
 
 type Brand struct {
 	ID            int
 	Name          string
 	Code          string
-	Logo          *url.URL
-	LogoAlternate *url.URL
+	Logo          *dbUtils.ApiUrl
+	LogoAlternate *dbUtils.ApiUrl
 	FormalName    string
 	LongName      string
 	PrimaryColor  string

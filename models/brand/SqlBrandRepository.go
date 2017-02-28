@@ -2,20 +2,18 @@ package brand
 
 import (
 	"database/sql"
-	"fmt"
-	"net/url"
+	"github.com/pkg/errors"
 )
 
 type SqlBrandRepository struct {
 	Session *sql.DB
 }
 
-func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
-	var logo *string
-	var logoAlt *string
+const BRAND_NOT_FOUND = "Brand doesn't exist"
 
+func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
 	getBrandById := `SELECT ID, name, code, logo, logoAlt, formalName, longName, primaryColor, autocareID
-			FROM Brand where ID = ? limit 1`
+			FROM Brand where ID = ?`
 
 	stmt, err := repo.Session.Prepare(getBrandById)
 	if err != nil {
@@ -24,27 +22,21 @@ func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
 	defer stmt.Close()
 
 	result := stmt.QueryRow(id)
-	err = result.Scan(&brand.ID, &brand.Name, &brand.Code, &logo, &logoAlt, &brand.FormalName, &brand.LongName, &brand.PrimaryColor, &brand.AutocareID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			err = fmt.Errorf("%s", "brand doesn't exist")
-		}
+	err = result.Scan(&brand.ID, &brand.Name, &brand.Code, &brand.Logo, &brand.LogoAlternate, &brand.FormalName, &brand.LongName, &brand.PrimaryColor, &brand.AutocareID)
+	// FIXME I think this overrides the expected errors below
+	switch {
+	case err == sql.ErrNoRows:
+		err = errors.Wrap(err, BRAND_NOT_FOUND)
+		fallthrough
+	case err != nil:
 		return brand, err
-	}
-
-	if logo != nil {
-		brand.Logo, _ = url.Parse(*logo)
-	}
-
-	if logoAlt != nil {
-		brand.LogoAlternate, _ = url.Parse(*logoAlt)
 	}
 
 	return brand, err
 }
 
 func (repo SqlBrandRepository) SaveNew(brand Brand) (err error) {
-	saveNewBrand := `insert into Brand(name, code, logo, logoAlt, formalName, longName, primaryColor, autocareID) values (?,?,?,?,?,?,?,?)`
+	saveNewBrand := `INSERT INTO Brand(name, code, logo, logoAlt, formalName, longName, primaryColor, autocareID) values (?,?,?,?,?,?,?,?)`
 	stmt, err := repo.Session.Prepare(saveNewBrand)
 	if err != nil {
 		return err
