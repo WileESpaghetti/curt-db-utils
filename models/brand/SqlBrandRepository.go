@@ -45,18 +45,8 @@ func (repo SqlBrandRepository) SaveNew(brand Brand) (err error) {
 	defer stmt.Close()
 
 	logo := brand.Logo.String()
-	logoAlt := brand.Logo.String()
+	logoAlt := brand.LogoAlternate.String()
 	_, err = stmt.Exec(&brand.Name, &brand.Code, &logo, &logoAlt, &brand.FormalName, &brand.LongName, &brand.PrimaryColor, &brand.AutocareID)
-	if err != nil {
-		return err
-	}
-
-	// TODO query for result.LastInsertID() and return Brand
-	//id, err := result.LastInsertId()
-	//if err != nil {
-	//	return err
-	//}
-	//brand.ID = int(id)
 
 	return err
 }
