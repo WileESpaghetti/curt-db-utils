@@ -7,6 +7,7 @@ import (
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	dbUtils "github.com/WileESpaghetti/curt-db-utils/helpers"
 	"strings"
+	"database/sql/driver"
 )
 
 func TestSqlBrandRepository_WhenGivenAValidI_GetById_ShouldReturnAStoredBrand(t *testing.T) {
@@ -67,6 +68,25 @@ func TestSqlBrandRepository_WhenGivenAnInvalidI_GetById_ShouldReturnABrandNotFou
 	if strings.Index(err.Error(), BRAND_NOT_FOUND) == -1 {
 		t.Fatalf("GetById() did not return a BRAND_NOT_FOUND error when looking up an invalid ID\n" +
 			"Got this instead: %s", err)
+	}
+}
+
+func TestSqlBrandRepository_WhenGivenAnErrorPreparing_GetById_ShouldReturnAnError(t *testing.T) {
+	// Setup the database mock
+	session, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer session.Close()
+
+	mock.ExpectPrepare("SELECT (.+)").WillReturnError(driver.ErrBadConn) // amoung other errors
+
+	// Test SqlBrandRepository.GetById
+	arbitraryId := 1
+	repo := SqlBrandRepository{Session: session}
+	_, err = repo.GetById(arbitraryId)
+	if err == nil {
+		t.Fatalf("GetById() did not return an error from a bad Prepare()\n")
 	}
 }
 

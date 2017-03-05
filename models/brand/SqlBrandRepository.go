@@ -10,6 +10,7 @@ type SqlBrandRepository struct {
 }
 
 const BRAND_NOT_FOUND = "Brand doesn't exist"
+const BRAND_CONNECTION_ISSUE = ""
 
 func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
 	getBrandById := `SELECT ID, name, code, logo, logoAlt, formalName, longName, primaryColor, autocareID
@@ -17,7 +18,7 @@ func (repo SqlBrandRepository) GetById(id int) (brand Brand, err error) {
 
 	stmt, err := repo.Session.Prepare(getBrandById)
 	if err != nil {
-		return brand, err
+		return brand, errors.Wrap(err, BRAND_CONNECTION_ISSUE)
 	}
 	defer stmt.Close()
 
