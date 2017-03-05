@@ -6,9 +6,10 @@ import (
 	"reflect"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	dbUtils "github.com/WileESpaghetti/curt-db-utils/helpers"
+	"strings"
 )
 
-func TestSqlBrandRepository_GetByIdShouldReturnBrandWhenGivenValidId(t *testing.T) {
+func TestSqlBrandRepository_WhenGivenAValidI_GetById_ShouldReturnAStoredBrand(t *testing.T) {
 	// Setup expected Result
 	expectedBrand := Brand {ID: 1,
 		Name: "ExampleName",
@@ -43,6 +44,29 @@ func TestSqlBrandRepository_GetByIdShouldReturnBrandWhenGivenValidId(t *testing.
 
 	if ! reflect.DeepEqual(brand, expectedBrand) {
 		t.Errorf("Actual Brand Does not match expected\n  Actual: %+v\nExpected: %+v", brand, expectedBrand)
+	}
+}
+
+func TestSqlBrandRepository_WhenGivenAnInvalidI_GetById_ShouldReturnABrandNotFoundError(t *testing.T) {
+	// Setup the database mock
+	session, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+	defer session.Close()
+
+	rows := sqlmock.NewRows([]string{"ID", "name", "code", "logo", "logoAlt", "formalName", "longName",
+		"primaryColor", "autocareID"})
+
+	mock.ExpectPrepare("SELECT (.+)").ExpectQuery().WillReturnRows(rows)
+
+	// Test SqlBrandRepository.GetById
+	invalidId := -1
+	repo := SqlBrandRepository{Session: session}
+	_, err = repo.GetById(invalidId)
+	if strings.Index(err.Error(), BRAND_NOT_FOUND) == -1 {
+		t.Fatalf("GetById() did not return a BRAND_NOT_FOUND error when looking up an invalid ID\n" +
+			"Got this instead: %s", err)
 	}
 }
 
